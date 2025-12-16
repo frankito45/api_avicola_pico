@@ -1,0 +1,87 @@
+{
+  "files": [
+    {
+      "id": 1,
+      "local": "granja_guernica",
+      "fecha": "29/10/2025",
+      "pollo": 0,
+      "mila": 0,
+      "pata": 0,
+      "alita": 0,
+      "suprema": 0,
+      "menudo": 0,
+      "rebosador": 0
+    },
+    {
+      "id": 2,
+      "local": "granja_guernica",
+      "fecha": "30/10/2025",
+      "pollo": 10,
+      "mila": 5,
+      "pata": 8,
+      "alita": 12,
+      "suprema": 7,
+      "menudo": 4,
+      "rebosador": 3
+    },
+    {
+      "local": "centaral Glew",
+      "fecha": "30/10/2025",
+      "pollo": 30,
+      "mila": 20,
+      "pata": 30,
+      "alita": 30,
+      "suprema": 20,
+      "menudo": 10,
+      "rebosador": 10
+    },
+    {
+      "local": "centaral Glew",
+      "fecha": "30/10/2025",
+      "pollo": 30,
+      "mila": 20,
+      "pata": 30,
+      "alita": 30,
+      "suprema": 20,
+      "menudo": 10,
+      "rebosador": 10,
+      "id": 4
+    },
+    {
+      "local": "centaral Glew",
+      "fecha": "3/11/2025",
+      "pollo": 30,
+      "mila": 20,
+      "pata": 30,
+      "alita": 30,
+      "suprema": 203,
+      "menudo": 103,
+      "rebosador": 10,
+      "id": 5
+    },
+    {
+      "local": "centaral Glew",
+      "fecha": "3/11/2025",
+      "pollo": 30,
+      "mila": 20,
+      "pata": 30,
+      "alita": 30,
+      "suprema": 203,
+      "menudo": 103,
+      "rebosador": 10,
+      "id": 6
+    },
+    {
+      "local": "centaral Glew",
+      "fecha": "3/11/2025",
+      "pollo": 30,
+      "mila": 20,
+      "pata": 30,
+      "alita": 30,
+      "suprema": 203,
+      "menudo": 103,
+      "rebosador": 10,
+      "id": 7
+    }
+  ]
+}
