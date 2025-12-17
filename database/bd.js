@@ -10,9 +10,12 @@ class MySQLDatabase {
             password: config.password,
             database: config.database,
             port: config.port,
+
             waitForConnections: true,
             connectionLimit: 10,   // cantidad de conexiones simultáneas
-            queueLimit: 0
+            queueLimit: 0,
+
+            ssl: { rejectUnauthorized: false }
         });
 
         console.log("Pool MySQL inicializado");
