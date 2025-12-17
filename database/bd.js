@@ -15,7 +15,7 @@ class MySQLDatabase {
             connectionLimit: 10,
             queueLimit: 0,
 
-            ssl: { rejectUnauthorized: false }
+            
         });
 
         console.log("Pool MySQL inicializado");

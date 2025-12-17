@@ -4,8 +4,6 @@ import stock from "./routes/stock.js";
 
 
 
-
-
 const app = express();
 
 // middleware to parse JSON bodies
