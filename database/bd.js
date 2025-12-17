@@ -5,11 +5,11 @@ class MySQLDatabase {
     constructor(config) {
         // Crear pool de conexiones (lo correcto para producción)
         this.pool = mysql.createPool({
-            host: config.host,
-            user: config.user,
-            password: config.password,
-            database: config.database,
-            port: config.port,
+             host: process.env.DB_HOST,
+            user: process.env.USER_DB,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME,
+             port: Number(process.env.DB_PORT),
 
             waitForConnections: true,
             connectionLimit: 10,   // cantidad de conexiones simultáneas
