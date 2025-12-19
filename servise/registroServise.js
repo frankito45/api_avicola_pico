@@ -1,48 +1,54 @@
 import db from "../database/bd.js";
-
 export async function CrearRegistro(data) {
-    const { fecha, item, estado, local, grupo } = data;
+  const { fecha, item, estado, local, grupo } = data;
 
-    const resultado = [];
+  const resultado = [];
 
-    // VALIDAR Y OBTENER IDS POR NOMBRE 
-    const [localRow] = await db.query("SELECT id FROM local WHERE name = ?", [local]);
-    if (!localRow) throw new Error(`Local '${local}' no existe`);
+  const [localRows] = await db.query(
+    "SELECT id FROM local WHERE name = ?",
+    [local]
+  );
+  if (!localRows.length) throw new Error(`Local '${local}' no existe`);
+  const localId = localRows[0].id;
 
-    const [estadoRow] = await db.query("SELECT id FROM estado WHERE name = ?", [estado]);
-    if (!estadoRow) throw new Error(`Estado '${estado}' no existe`);
+  const [estadoRows] = await db.query(
+    "SELECT id FROM estado WHERE name = ?",
+    [estado]
+  );
+  if (!estadoRows.length) throw new Error(`Estado '${estado}' no existe`);
+  const estadoId = estadoRows[0].id;
 
-    const [grupoRow] = await db.query("SELECT id FROM grupo WHERE name = ?", [grupo]);
-    if (!grupoRow) throw new Error(`Grupo '${grupo}' no existe`);
+  const [grupoRows] = await db.query(
+    "SELECT id FROM grupo WHERE name = ?",
+    [grupo]
+  );
+  if (!grupoRows.length) throw new Error(`Grupo '${grupo}' no existe`);
+  const grupoId = grupoRows[0].id;
 
-    // RECORRER ITEMS Y GUARDAR UNO POR UNO 
-    for (const it of item) {
-        const nombreItem = it.name;
-        const pesoItem = it.peso;
+  for (const it of item) {
+    const { name, peso } = it;
 
-        if (!nombreItem) throw new Error(`Item sin nombre`);
-        if (pesoItem == null) throw new Error(`Peso faltante en item '${nombreItem}'`);
+    if (!name) throw new Error(`Item sin nombre`);
+    if (peso == null) throw new Error(`Peso faltante en item '${name}'`);
 
-        const [itemRow] = await db.query(
-            "SELECT id FROM item WHERE name = ?",
-            [nombreItem]
-        );
-        if (!itemRow) throw new Error(`Item '${nombreItem}' no existe`);
+    const [itemRows] = await db.query(
+      "SELECT id FROM item WHERE name = ?",
+      [name]
+    );
+    if (!itemRows.length) throw new Error(`Item '${name}' no existe`);
 
-        const insertResult = await db.query(`
-            INSERT INTO registro (fecha, item_id, peso, estado_id, local_id, grupo_id)
-            VALUES (?, ?, ?, ?, ?, ?)
-        `, [
-            fecha,
-            itemRow.id,
-            pesoItem,
-            estadoRow.id,
-            localRow.id,
-            grupoRow.id
-        ]);
+    const itemId = itemRows[0].id;
 
-        resultado.push(insertResult.insertId);
-    }
+    const [insertResult] = await db.query(
+      `
+      INSERT INTO registro (fecha, item_id, peso, estado_id, local_id, grupo_id)
+      VALUES (?, ?, ?, ?, ?, ?)
+      `,
+      [fecha, itemId, peso, estadoId, localId, grupoId]
+    );
 
-    return resultado;
+    resultado.push(insertResult.insertId);
+  }
+
+  return resultado;
 }
