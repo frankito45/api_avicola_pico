@@ -4,24 +4,27 @@ export async function CrearRegistro(data) {
 
   const resultado = [];
 
-  const [localRows] = await db.query(
+  const localRows = await db.query(
     "SELECT id FROM local WHERE name = ?",
     [local]
   );
+  console.log(localRows);
+
   if (!localRows.length) throw new Error(`Local '${local}' no existe`);
   const localId = localRows[0].id;
 
-  const [estadoRows] = await db.query(
+
+  const estadoRows = await db.query(
     "SELECT id FROM estado WHERE name = ?",
     [estado]
   );
   if (!estadoRows.length) throw new Error(`Estado '${estado}' no existe`);
   const estadoId = estadoRows[0].id;
 
-  const [grupoRows] = await db.query(
+  const grupoRows = await db.query(
     "SELECT id FROM grupo WHERE name = ?",
     [grupo]
-  );
+);
   if (!grupoRows.length) throw new Error(`Grupo '${grupo}' no existe`);
   const grupoId = grupoRows[0].id;
 
@@ -31,7 +34,7 @@ export async function CrearRegistro(data) {
     if (!name) throw new Error(`Item sin nombre`);
     if (peso == null) throw new Error(`Peso faltante en item '${name}'`);
 
-    const [itemRows] = await db.query(
+    const itemRows = await db.query(
       "SELECT id FROM item WHERE name = ?",
       [name]
     );
@@ -39,7 +42,7 @@ export async function CrearRegistro(data) {
 
     const itemId = itemRows[0].id;
 
-    const [insertResult] = await db.query(
+    const insertResult = await db.query(
       `
       INSERT INTO registro (fecha, item_id, peso, estado_id, local_id, grupo_id)
       VALUES (?, ?, ?, ?, ?, ?)
