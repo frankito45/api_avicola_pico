@@ -3,47 +3,55 @@ import db from "../database/bd.js";
 export async function CrearRegistro(data) {
   const { fecha, item, estado, local, grupo, destino } = data;
 
+  if (!item || !Array.isArray(item)) {
+    throw new Error("Items inválidos");
+  }
+
   const resultado = [];
   const esEnvio = estado === "envio";
 
   try {
-    // 🔐 Iniciar transacción
+    // 🔐 TRANSACTION (compatible)
     await db.query("START TRANSACTION");
 
     // 🔹 LOCAL
-    const localRows = await db.query(
+    const localQuery = await db.query(
       "SELECT id FROM local WHERE name = ?",
       [local]
     );
+    const localRows = localQuery[0] || localQuery;
     if (!localRows.length) throw new Error(`Local '${local}' no existe`);
     const localId = localRows[0].id;
 
     // 🔹 ESTADO
-    const estadoRows = await db.query(
+    const estadoQuery = await db.query(
       "SELECT id FROM estado WHERE name = ?",
       [estado]
     );
+    const estadoRows = estadoQuery[0] || estadoQuery;
     if (!estadoRows.length) throw new Error(`Estado '${estado}' no existe`);
     const estadoId = estadoRows[0].id;
 
     // 🔹 GRUPO
-    const grupoRows = await db.query(
+    const grupoQuery = await db.query(
       "SELECT id FROM grupo WHERE name = ?",
       [grupo]
     );
+    const grupoRows = grupoQuery[0] || grupoQuery;
     if (!grupoRows.length) throw new Error(`Grupo '${grupo}' no existe`);
     const grupoId = grupoRows[0].id;
 
-    // 🔹 DESTINO (solo si es envío)
+    // 🔹 DESTINO
     let destinoId = null;
 
     if (esEnvio) {
       if (!destino) throw new Error("Falta destino para el envío");
 
-      const destinoRows = await db.query(
+      const destinoQuery = await db.query(
         "SELECT id FROM local WHERE name = ?",
         [destino]
       );
+      const destinoRows = destinoQuery[0] || destinoQuery;
 
       if (!destinoRows.length) {
         throw new Error(`Destino '${destino}' no existe`);
@@ -51,29 +59,33 @@ export async function CrearRegistro(data) {
 
       destinoId = destinoRows[0].id;
 
-      // 🚫 evitar enviar al mismo lugar
       if (destinoId === localId) {
         throw new Error("El destino no puede ser igual al local");
       }
     }
 
-    // 🔹 CACHE DE ITEMS (optimización)
-    const itemsDB = await db.query("SELECT id, name FROM item");
-    const itemMap = new Map();
-    itemsDB.forEach(i => itemMap.set(i.name, i.id));
+    // 🔹 ITEMS CACHE (evita múltiples queries)
+    const itemsQuery = await db.query("SELECT id, name FROM item");
+    const itemsDB = itemsQuery[0] || itemsQuery;
 
-    // 🔹 INSERT DE ITEMS
+    const itemMap = new Map();
+    itemsDB.forEach(i =>
+      itemMap.set(i.name.trim().toLowerCase(), i.id)
+    );
+
+    // 🔹 INSERT
     for (const it of item) {
-      const { name, peso } = it;
+      const name = it.name?.trim().toLowerCase();
+      const peso = it.peso;
 
       if (!name) throw new Error(`Item sin nombre`);
       if (peso == null) throw new Error(`Peso faltante en '${name}'`);
-      if (peso <= 0) continue; // 👈 ignora pesos 0 o negativos
+      if (peso <= 0) continue;
 
       const itemId = itemMap.get(name);
       if (!itemId) throw new Error(`Item '${name}' no existe`);
 
-      const insertResult = await db.query(
+      const insertQuery = await db.query(
         `
         INSERT INTO registro 
         (fecha, item_id, peso, estado_id, local_id, grupo_id, destino_id)
@@ -82,17 +94,25 @@ export async function CrearRegistro(data) {
         [fecha, itemId, peso, estadoId, localId, grupoId, destinoId]
       );
 
+      const insertResult = insertQuery[0] || insertQuery;
+
       resultado.push(insertResult.insertId);
     }
 
-    // 🔹 Confirmar todo
+    // 🚫 Evitar commit vacío
+    if (resultado.length === 0) {
+      throw new Error("No hay items válidos para guardar");
+    }
+
     await db.query("COMMIT");
 
     return resultado;
 
   } catch (error) {
-    // ❌ Si algo falla, revierte todo
     await db.query("ROLLBACK");
+
+    console.error("Error en CrearRegistro:", error);
+
     throw error;
   }
 }
